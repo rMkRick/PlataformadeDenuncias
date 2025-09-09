@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Panel del Ciudadano - Plataforma de Denuncias</title>
+  <link href="assets/css/base.css" rel="stylesheet">
+  <link href="assets/css/components.css" rel="stylesheet">
+  <link href="assets/css/main.css" rel="stylesheet">
+  <style>
+    body { background-color: #f0f2f5; padding-top: 80px; }
+    main { padding: 20px; }
+    .dashboard-container { max-width: 1200px; margin: auto; }
+    .card {
+      background-color: #fff;
+      padding: 25px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    h2, h3 { color: #333; }
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; margin-bottom: 8px; font-weight: bold; }
+    .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
+    .btn-submit { background-color: #0d6efd; color: #fff; padding: 12px 20px; border: none; border-radius: 4px; cursor: pointer; }
+    #map { height: 300px; margin-top: 15px; border-radius: 4px; }
+    .denuncia-item { border-bottom: 1px solid #eee; padding: 15px 0; }
+    .denuncia-item:last-child { border-bottom: none; }
+    .denuncia-item h4 { margin-bottom: 5px; }
+    .denuncia-item p { margin-bottom: 5px; }
+    .status { font-weight: bold; }
+    .status-recibido { color: #ffc107; }
+    .status-en-proceso { color: #0dcaf0; }
+    .status-resuelta { color: #198754; }
+  </style>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+</head>
+<body>
+
+  <header id="header" class="header fixed-top d-flex align-items-center">
+    <div class="container d-flex align-items-center justify-content-between">
+      <a href="index.html" class="logo d-flex align-items-center me-auto me-xl-0">
+        <img src="assets/img/logos/logo.png" alt="Logo">
+        <h1>PLATAFORMA DE DENUNCIAS</h1>
+      </a>
+      <nav id="navmenu" class="navmenu">
+        <ul>
+          <li><a href="index.html#inicio" class="active">Inicio</a></li>
+          <li><a href="index.html#nosotros">Nosotros</a></li>
+          <li><a href="index.html#tramites">Denuncias</a></li>                  
+          <li><a href="index.html#contacto">Contacto</a></li>
+          <li><a href="#" id="logout">Cerrar Sesión</a></li>          
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main style="display: flex; justify-content: center; padding: 20px;">
+    <div class="dashboard-container" style="flex-grow: 1; max-width: 800px; margin-right: 20px;">
+      <div class="card">
+        <h2>Panel del Ciudadano</h2>
+        <p id="welcomeMessage">Bienvenido. Desde aquí puedes gestionar tus denuncias.</p>
+      </div>
+
+      <div class="card">
+        <h3>Crear Nueva Denuncia</h3>
+        <form id="denunciaForm" enctype="multipart/form-data">
+          <div class="form-group">
+            <label for="tipoDenuncia">Tipo de Denuncia</label>
+            <select id="tipoDenuncia" name="IdTipoDenuncia" required>
+              <!-- Opciones se cargarán dinámicamente -->
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="descripcion">Descripción</label>
+            <textarea id="descripcion" name="descripcion" rows="4" required></textarea>
+          </div>
+          <div class="form-group">
+            <label for="fotos">Fotos (Opcional, múltiple, max 5MB por foto) <span id="photoCount">(0)</span></label>
+            <input type="file" id="fotos" name="fotos" accept="image/*" multiple>
+          </div>
+          <div class="form-group">
+            <label for="videos">Videos (Opcional, múltiple, max 50MB por video)</label>
+            <input type="file" id="videos" name="videos" accept="video/*" multiple>
+          </div>
+          <div class="form-group">
+            <label for="documentos">Documentos (Opcional, múltiple, max 10MB por documento)</label>
+            <input type="file" id="documentos" name="documentos" accept=".pdf,.doc,.docx" multiple>
+          </div>
+          <div class="form-group">
+            <label>Geolocalización</label>
+            <p>Mueve el marcador en el mapa para indicar la ubicación exacta.</p>
+            <div id="map"></div>
+            <input type="hidden" id="latitud" name="latitud">
+            <input type="hidden" id="longitud" name="longitud">
+          </div>
+          <button type="submit" class="btn-submit">Enviar Denuncia</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <h3>Mis Denuncias</h3>
+        <div id="listaDenuncias"></div>
+      </div>
+    </div>
+
+    <div id="previewArea" style="width: 300px; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow-y: auto; max-height: calc(100vh - 120px); position: sticky; top: 120px;">
+      <h4>Previsualización de Evidencias</h4>
+      
+      <h5>Fotos</h5>
+      <div id="photoPreviews" style="display: flex; flex-wrap: wrap; gap: 5px;"></div>
+
+      <h5>Videos</h5>
+      <div id="videoPreviews" style="display: flex; flex-wrap: wrap; gap: 5px;"></div>
+
+      <h5>Documentos</h5>
+      <div id="documentPreviews" style="display: flex; flex-wrap: wrap; gap: 5px;"></div>
+
+      <div id="documentModal" style="position: fixed; top: 80px; left: 0; width: 100%; height: calc(100% - 80px); background-color: rgba(0,0,0,0.8); z-index: 9999; display: none; justify-content: center; align-items: center;">
+        <button id="closeDocumentModal" style="position: absolute; top: 90px; right: 20px; background: none; border: none; font-size: 30px; color: #fff; cursor: pointer; z-index: 1002;">&times;</button>
+        <div style="position: relative; width: 80%; height: calc(100% - 40px); background-color: #fff; padding: 20px; border-radius: 8px; display: flex; flex-direction: column;">
+          <iframe id="documentPreviewFrame" style="flex-grow: 1; border: none;"></iframe>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      const welcomeMessageElement = document.getElementById('welcomeMessage');
+      const nombres = localStorage.getItem('nombres');
+      const apellidos = localStorage.getItem('apellidos');
+
+      if (nombres && apellidos) {
+        welcomeMessageElement.textContent = `Bienvenido ${nombres} ${apellidos}. Desde aquí puedes gestionar tus denuncias.`;
+      } else {
+        welcomeMessageElement.textContent = `Bienvenido. Desde aquí puedes gestionar tus denuncias.`;
+      }
+
+      // Logout
+      document.getElementById('logout').addEventListener('click', () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('rol');
+        window.location.href = 'index.html';
+      });
+
+      // Inicializar mapa
+      const map = L.map('map').setView([-13.52264, -71.96734], 13); // Coordenadas de Cusco
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(map);
+      const marker = L.marker([-13.52264, -71.96734], { draggable: true }).addTo(map);
+      document.getElementById('latitud').value = -13.52264;
+      document.getElementById('longitud').value = -71.96734;
+
+      marker.on('dragend', function(e) {
+        const latlng = e.target.getLatLng();
+        document.getElementById('latitud').value = latlng.lat;
+        document.getElementById('longitud').value = latlng.lng;
+      });
+
+      // Cargar tipos de denuncia desde el backend
+      const urlParams = new URLSearchParams(window.location.search);
+      const tipoDenunciaId = urlParams.get('tipoDenuncia');
+      const tipoDenunciaSelect = document.getElementById('tipoDenuncia');
+
+      fetch('/api/denuncias/tipos', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      .then(response => response.json())
+      .then(tipos => {
+        tipos.forEach(t => {
+          const option = document.createElement('option');
+          option.value = t.IdTipoDenuncia;
+          option.textContent = t.NombreTipo;
+          tipoDenunciaSelect.appendChild(option);
+        });
+
+        // Pre-seleccionar el tipo de denuncia si viene en la URL
+        if (tipoDenunciaId) {
+          tipoDenunciaSelect.value = tipoDenunciaId;
+        }
+      })
+      .catch(error => {
+        console.error('Error al cargar los tipos de denuncia:', error);
+        alert('No se pudieron cargar los tipos de denuncia. Inténtalo de nuevo más tarde.');
+      });
+
+      // Cargar denuncias existentes desde el backend
+      const listaDenuncias = document.getElementById('listaDenuncias');
+      fetch('/api/denuncias/mis-denuncias', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      .then(response => response.json())
+      .then(denuncias => {
+        if (denuncias.length === 0) {
+          listaDenuncias.innerHTML = '<p>No tienes denuncias registradas.</p>';
+        } else {
+          listaDenuncias.innerHTML = ''; // Limpiar
+          denuncias.forEach(d => {
+            const item = document.createElement('div');
+            item.className = 'denuncia-item';
+            // Formatear la fecha para que sea más legible
+            const fecha = new Date(d.FechaRegistro).toLocaleDateString('es-ES', {
+              year: 'numeric', month: 'long', day: 'numeric'
+            });
+            item.innerHTML = `
+              <h4>${d.TipoDenuncia.NombreTipo}</h4>
+              <p><strong>Descripción:</strong> ${d.Descripcion}</p>
+              <p><strong>Fecha:</strong> ${fecha}</p>
+              <p><strong>Estado:</strong> <span class="status status-${d.Estado.toLowerCase().replace(' ', '-')}">${d.Estado}</span></p>
+            `;
+            listaDenuncias.appendChild(item);
+          });
+        }
+      })
+      .catch(error => {
+        console.error('Error al cargar las denuncias:', error);
+        listaDenuncias.innerHTML = '<p class="text-center text-danger">No se pudieron cargar tus denuncias.</p>';
+      });
+
+      // File Previews and Counters
+      const fotosInput = document.getElementById('fotos');
+      const videosInput = document.getElementById('videos');
+      const documentosInput = document.getElementById('documentos');
+      const photoCountSpan = document.getElementById('photoCount');
+      const photoPreviewsDiv = document.getElementById('photoPreviews');
+      const videoPreviewsDiv = document.getElementById('videoPreviews');
+      const documentPreviewsDiv = document.getElementById('documentPreviews');
+      const documentModal = document.getElementById('documentModal');
+      const documentPreviewFrame = document.getElementById('documentPreviewFrame');
+      const closeDocumentModalBtn = document.getElementById('closeDocumentModal');
+
+      let uploadedFiles = {
+        fotos: [],
+        videos: [],
+        documentos: []
+      };
+
+      function updatePhotoCounter() {
+        photoCountSpan.textContent = `(${uploadedFiles.fotos.length})`;
+      }
+
+      function displayImagePreview(file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = document.createElement('img');
+          img.src = e.target.result;
+          img.style.maxWidth = '100px';
+          img.style.maxHeight = '100px';
+          img.style.margin = '5px';
+          photoPreviewsDiv.appendChild(img);
+        };
+        reader.readAsDataURL(file);
+      }
+
+      function displayVideoPreview(file) {
+        const video = document.createElement('video');
+        video.src = URL.createObjectURL(file);
+        video.controls = true;
+        video.style.maxWidth = '100px';
+        video.style.maxHeight = '100px';
+        video.style.margin = '5px';
+        videoPreviewsDiv.appendChild(video);
+      }
+
+      const mapDiv = document.getElementById('map'); // Get reference to the map div
+
+      function displayDocumentPreview(file) {
+        const docItem = document.createElement('div');
+        docItem.textContent = file.name;
+        docItem.style.padding = '5px';
+        docItem.style.border = '1px solid #eee';
+        docItem.style.margin = '5px';
+        docItem.style.cursor = 'pointer';
+
+        docItem.addEventListener('click', () => {
+          documentPreviewFrame.src = URL.createObjectURL(file);
+          documentModal.style.display = 'flex'; // Use flex to center
+          mapDiv.style.display = 'none'; // Hide the map
+        });
+        documentPreviewsDiv.appendChild(docItem);
+      }
+
+      closeDocumentModalBtn.addEventListener('click', () => {
+        documentModal.style.display = 'none';
+        documentPreviewFrame.src = ''; // Clear the iframe
+        mapDiv.style.display = 'block'; // Show the map
+      });
+
+      fotosInput.addEventListener('change', (e) => {
+        for (const file of e.target.files) {
+          uploadedFiles.fotos.push(file);
+          displayImagePreview(file);
+        }
+        updatePhotoCounter();
+      });
+
+      videosInput.addEventListener('change', (e) => {
+        for (const file of e.target.files) {
+          uploadedFiles.videos.push(file);
+          displayVideoPreview(file);
+        }
+      });
+
+      documentosInput.addEventListener('change', (e) => {
+        for (const file of e.target.files) {
+          uploadedFiles.documentos.push(file);
+          displayDocumentPreview(file);
+        }
+      });
+
+      // Enviar nueva denuncia
+      document.getElementById('denunciaForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData();
+        
+        // Append form fields
+        formData.append('IdTipoDenuncia', document.getElementById('tipoDenuncia').value);
+        formData.append('descripcion', document.getElementById('descripcion').value);
+        formData.append('latitud', document.getElementById('latitud').value);
+        formData.append('longitud', document.getElementById('longitud').value);
+
+        // Append files
+        uploadedFiles.fotos.forEach((file, index) => {
+          formData.append('fotos', file);
+        });
+        uploadedFiles.videos.forEach((file, index) => {
+          formData.append('videos', file);
+        });
+        uploadedFiles.documentos.forEach((file, index) => {
+          formData.append('documentos', file);
+        });
+
+        const token = localStorage.getItem('token');
+
+        try {
+          const response = await fetch('/api/denuncias', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`
+            },
+            body: formData
+          });
+
+          const result = await response.json();
+
+          if (response.ok) {
+            alert('Denuncia enviada exitosamente.');
+            this.reset();
+            // Clear previews and counters
+            uploadedFiles = { fotos: [], videos: [], documentos: [] };
+            photoPreviewsDiv.innerHTML = '';
+            videoPreviewsDiv.innerHTML = '';
+            documentPreviewsDiv.innerHTML = '';
+            updatePhotoCounter();
+            // Optionally, refresh the list of denuncias
+            // ...
+          } else {
+            alert('Error: ' + result.message);
+          }
+        } catch (error) {
+          console.error('Error al enviar la denuncia:', error);
+          alert('Ocurrió un error en el servidor.');
+        }
+      });
+
+    });
+  </script>
+</body>
+</html>

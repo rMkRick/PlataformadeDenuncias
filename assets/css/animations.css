@@ -1,0 +1,46 @@
+
+/* AOS Animations */
+[data-aos] {
+  transition-property: opacity, transform;
+  opacity: 0;
+}
+
+[data-aos].aos-animate {
+  opacity: 1;
+}
+
+[data-aos="fade-up"] {
+  transform: translate3d(0, 100px, 0);
+}
+
+[data-aos="fade-up"].aos-animate {
+  transform: translate3d(0, 0, 0);
+}
+
+[data-aos="fade-in"] {
+  opacity: 0;
+}
+
+[data-aos="fade-in"].aos-animate {
+  opacity: 1;
+}
+
+[data-aos="zoom-in"] {
+  opacity: 0;
+  transform: scale(0.6);
+}
+
+[data-aos="zoom-in"].aos-animate {
+  opacity: 1;
+  transform: scale(1);
+}
+
+[data-aos="zoom-out"] {
+  opacity: 0;
+  transform: scale(1.2);
+}
+
+[data-aos="zoom-out"].aos-animate {
+  opacity: 1;
+  transform: scale(1);
+}

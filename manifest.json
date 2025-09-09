@@ -1,0 +1,56 @@
+{
+    "lang": "es-ES",
+    "name": "Web App PLATAFORMA DIGITAL DE DENUNCIAS",
+    "short_name": "PLATAFORMA DIGITAL DE DENUNCIAS",
+    "description": "PLATAFORMA DIGITAL DE DENUNCIAS donde podrás hacer tus trámites de denuncias, constancias, reclamos y salvoconductos de forma online.",
+    "start_url": "/",
+    "id": "webappcv-1",
+    "background_color": "#007028",
+    "theme_color": "#007028",
+    "orientation": "any",
+    "display": "standalone",
+    "categories": ["denuncias", "constancias", "reclamos", "salvoconductos"],
+    "scope": "/",
+    "icons": [        
+        {
+            "src": "/assets/img/icons/cv_isotipo32.png",
+            "type": "image/png",
+            "sizes": "32x32"
+        },
+        {
+            "src": "/assets/img/icons/cv_isotipo64.png",
+            "type": "image/png",
+            "sizes": "64x64"
+        },
+        {
+            "src": "/assets/img/icons/cv_isotipo96.png",
+            "type": "image/png",
+            "sizes": "96x96"
+        },
+        {
+            "src": "/assets/img/icons/cv_isotipo128.png",
+            "type": "image/png",
+            "sizes": "128x128"
+        },        
+        {
+            "src": "/assets/img/icons/cv_isotipo168.png",
+            "type": "image/png",
+            "sizes": "168x168"
+        },
+        {
+            "src": "/assets/img/icons/cv_isotipo192.png",
+            "type": "image/png",
+            "sizes": "192x192"
+        },
+        {
+            "src": "/assets/img/icons/cv_isotipo256.png",
+            "type": "image/png",
+            "sizes": "256x256"
+        },
+        {
+            "src": "/assets/img/icons/cv_isotipo512.png",
+            "type": "image/png",
+            "sizes": "512x512"
+        }        
+    ]
+}

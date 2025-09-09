@@ -1,0 +1,62 @@
+
+/* Icon Base Styles */
+i {
+  display: inline-block;
+  font-style: normal;
+  font-weight: normal;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Placeholder for bi-list and bi-x icons */
+.bi-list::before {
+  content: "\2630"; /* Unicode for☰ */
+}
+
+.bi-x::before {
+  content: "\2715"; /* Unicode for ✕ */
+}
+
+/* Placeholder for other bi- and fa- icons */
+/* These will need to be replaced with actual SVG or custom icon solutions */
+.bi::before, [class^="bi-"]::before, [class*=" bi-"]::before,
+.fa-solid::before, .fa-regular::before, .fa-brands::before {
+  font-family: sans-serif; /* Fallback font */
+  font-weight: 900; /* For solid icons */
+}
+
+/* Specific icon placeholders (adjust as needed) */
+.bi-person-circle::before { content: "\1F464"; /* 👤 */ }
+.bi-person-workspace::before { content: "\1F4BC"; /* 💼 */ }
+.bi-box-arrow-in-right::before { content: "\2192"; /* → */ }
+.bi-twitter-x::before { content: "X"; }
+.bi-facebook::before { content: "f"; }
+.bi-youtube::before { content: "▶"; }
+.bi-instagram::before { content: "@"; }
+.bi-tiktok::before { content: "♬"; }
+.bi-arrow-up-short::before { content: "\2191"; /* ↑ */ }
+
+.fa-solid.fa-user-ninja::before { content: "\1F977"; /* 🥷 */ }
+.fa-solid.fa-car-burst::before { content: "\1F697"; /* 🚗 */ }
+.fa-solid.fa-person-running::before { content: "\1F3C3"; /* 🏃 */ }
+.fa-solid.fa-hand-holding-dollar::before { content: "\1F4B8"; /* 💸 */ }
+.fa-solid.fa-house-medical-circle-exclamation::before { content: "\2695"; /* ⚕️ */ }
+.fa-solid.fa-paw::before { content: "\1F43E"; /* 🐾 */ }
+.fa-solid.fa-house-circle-xmark::before { content: "\1F3E0"; /* 🏠 */ }
+.fa-solid.fa-gas-pump::before { content: "\26FD"; /* ⛽ */ }
+.fa-solid.fa-route::before { content: "\1F6A2"; /* 🚢 */ }
+.fa-solid.fa-person-rifle::before { content: "\1F52B"; /* 🔫 */ }
+.fa-solid.fa-cannabis::before { content: "\1F33F"; /* 🌿 */ }
+.fa-solid.fa-car::before { content: "\1F697"; /* 🚗 */ }
+.fa-solid.fa-person-falling-burst::before { content: "\1F4A5"; /* 💥 */ }
+.fa-solid.fa-handshake-slash::before { content: "\1F91D"; /* 🤝 */ }
+.fa-solid.fa-house-chimney-crack::before { content: "\1F3E0"; /* 🏠 */ }
+.fa-solid.fa-money-bill-wheat::before { content: "\1F4B5"; /* 💰 */ }
+.fa-regular.fa-address-card::before { content: "\1F4B3"; /* 💳 */ }
+.fa-solid.fa-mobile-screen-button::before { content: "\1F4F1"; /* 📱 */ }
+.fa-solid.fa-ticket::before { content: "\1F3AB"; /* 🎫 */ }
+.fa-solid.fa-house-circle-check::before { content: "\1F3E0"; /* 🏠 */ }
+.fa-solid.fa-people-arrows::before { content: "\1F91D"; /* 🤝 */ }
+.fa-solid.fa-users-viewfinder::before { content: "\1F465"; /* 👥 */ }
+.fa-solid.fa-street-view::before { content: "\1F307"; /* 🌇 */ }
